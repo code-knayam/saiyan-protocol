@@ -2,6 +2,7 @@ import { Router, type Router as RouterType } from 'express';
 import { z } from 'zod';
 import { pool } from '../db/pool.js';
 import { authenticate } from '../middleware/auth.js';
+import { logger } from '../utils/logger.js';
 import { generateAndPersistScheduleForAthlete } from './workouts.js';
 
 const ATHLETE_FIELDS = `id, email, name, picture_url, age, height, weight, power_level,
@@ -12,29 +13,35 @@ const router: RouterType = Router();
 router.use(authenticate);
 
 // ═══════════════════════════════════
-// GET /athlete — current athlete profile
+// GET /athlete
 // ═══════════════════════════════════
 router.get('/', async (req, res) => {
+  const athleteId = req.athlete!.athleteId;
+  logger.debug('GET /athlete', { athleteId });
+  const t0 = Date.now();
+
   try {
     const result = await pool.query(
       `SELECT ${ATHLETE_FIELDS} FROM athletes WHERE id = $1`,
-      [req.athlete!.athleteId],
+      [athleteId],
     );
 
     if (result.rows.length === 0) {
+      logger.warn('Athlete not found', { athleteId });
       res.status(404).json({ error: 'Athlete not found' });
       return;
     }
 
+    logger.debug('GET /athlete ok', { athleteId, ms: Date.now() - t0 });
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error('Get athlete error:', err);
+  } catch (err: any) {
+    logger.error('GET /athlete failed', { athleteId, message: err.message, ms: Date.now() - t0 });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // ═══════════════════════════════════
-// PATCH /athlete — update profile
+// PATCH /athlete
 // ═══════════════════════════════════
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -50,8 +57,12 @@ const updateSchema = z.object({
 }).strict();
 
 router.patch('/', async (req, res) => {
+  const athleteId = req.athlete!.athleteId;
+  const t0 = Date.now();
+
   try {
     const body = updateSchema.parse(req.body);
+    logger.debug('PATCH /athlete', { athleteId, fields: Object.keys(body) });
 
     const fieldMap: Record<string, string> = {
       name: 'name',
@@ -79,17 +90,7 @@ router.patch('/', async (req, res) => {
       }
     }
 
-    values.push(req.athlete!.athleteId);
-
-    // Check if we need to generate a schedule after saving (new onboarding completion)
-    let shouldGenerate = false;
-    if (body.onboarded === true) {
-      const scheduleCheck = await pool.query(
-        `SELECT COUNT(*) FROM week_schedules WHERE athlete_id = $1`,
-        [req.athlete!.athleteId],
-      );
-      shouldGenerate = parseInt(scheduleCheck.rows[0].count, 10) === 0;
-    }
+    values.push(athleteId);
 
     const result = await pool.query(
       `UPDATE athletes SET ${setClauses.join(', ')}
@@ -98,17 +99,29 @@ router.patch('/', async (req, res) => {
       values,
     );
 
-    if (shouldGenerate) {
-      await generateAndPersistScheduleForAthlete(req.athlete!.athleteId);
+    // Fire schedule generation in background when onboarding completes — do not block response
+    if (body.onboarded === true) {
+      const check = await pool.query(
+        `SELECT COUNT(*) FROM week_schedules WHERE athlete_id = $1`,
+        [athleteId],
+      );
+      if (parseInt(check.rows[0].count, 10) === 0) {
+        logger.info('Onboarding complete — firing background schedule generation', { athleteId });
+        generateAndPersistScheduleForAthlete(athleteId).catch((err: any) => {
+          logger.error('Background schedule generation failed', { athleteId, message: err.message });
+        });
+      }
     }
 
+    logger.debug('PATCH /athlete ok', { athleteId, ms: Date.now() - t0 });
     res.json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof z.ZodError) {
+      logger.warn('PATCH /athlete validation failed', { athleteId, errors: err.errors });
       res.status(400).json({ error: 'Validation failed', details: err.errors });
       return;
     }
-    console.error('Update athlete error:', err);
+    logger.error('PATCH /athlete failed', { athleteId, message: err.message, ms: Date.now() - t0 });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -117,6 +130,9 @@ router.patch('/', async (req, res) => {
 // POST /athlete/reset-progress
 // ═══════════════════════════════════
 router.post('/reset-progress', async (req, res) => {
+  const athleteId = req.athlete!.athleteId;
+  logger.info('Reset progress', { athleteId });
+
   try {
     const result = await pool.query(
       `UPDATE athletes
@@ -124,12 +140,12 @@ router.post('/reset-progress', async (req, res) => {
            total_sessions_completed = 0, streak_days = 0, updated_at = NOW()
        WHERE id = $1
        RETURNING ${ATHLETE_FIELDS}`,
-      [req.athlete!.athleteId],
+      [athleteId],
     );
 
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error('Reset progress error:', err);
+  } catch (err: any) {
+    logger.error('Reset progress failed', { athleteId, message: err.message });
     res.status(500).json({ error: 'Internal server error' });
   }
 });

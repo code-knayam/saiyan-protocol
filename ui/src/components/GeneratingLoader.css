@@ -1,0 +1,224 @@
+/* ═══════════════════════════════════════════
+   GENERATING LOADER — Scouter scan UI
+   ═══════════════════════════════════════════ */
+
+.gen-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px 20px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.gen-loader__eyebrow {
+  font-size: 0.38rem !important;
+  color: var(--red);
+  letter-spacing: 2px;
+  text-align: center;
+  min-height: 1.2em;
+}
+
+/* ─── Scouter stage ─── */
+
+.scouter-stage {
+  position: relative;
+  width: 240px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Corner reticle marks */
+.reticle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 10;
+}
+.reticle--tl { top: 0;    left: 0;    border-top: 3px solid var(--orange); border-left: 3px solid var(--orange); }
+.reticle--tr { top: 0;    right: 0;   border-top: 3px solid var(--orange); border-right: 3px solid var(--orange); }
+.reticle--bl { bottom: 0; left: 0;    border-bottom: 3px solid var(--orange); border-left: 3px solid var(--orange); }
+.reticle--br { bottom: 0; right: 0;   border-bottom: 3px solid var(--orange); border-right: 3px solid var(--orange); }
+
+/* Horizontal measurement lines */
+.scouter-hline {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: rgba(208, 104, 16, 0.35);
+  z-index: 5;
+}
+.scouter-hline::before,
+.scouter-hline::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 7px;
+  background: var(--orange);
+  opacity: 0.6;
+}
+.scouter-hline::before { left: 0; }
+.scouter-hline::after  { right: 0; }
+
+.scouter-hline--top    { top: 28px; }
+.scouter-hline--bottom { bottom: 28px; }
+
+/* ─── Goku figure ─── */
+
+.scouter-figure {
+  position: relative;
+  width: 190px;
+  height: 260px;
+  overflow: hidden;
+}
+
+.scouter-figure__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: brightness(0.55) sepia(0.4) saturate(1.4);
+  display: block;
+}
+
+/* Ambient glow underneath figure */
+.scouter-figure__glow {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 30px;
+  background: radial-gradient(ellipse, rgba(208, 104, 16, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Scan line sweeping up over the figure */
+.scouter-figure__scan-line {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0, 220, 120, 0.15) 15%,
+    rgba(0, 220, 120, 0.85) 50%,
+    rgba(0, 220, 120, 0.15) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(0, 220, 120, 0.6), 0 0 24px rgba(0, 220, 120, 0.25);
+  animation: scan-sweep 2.2s linear infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+
+@keyframes scan-sweep {
+  0%   { top: 100%; opacity: 0; }
+  4%   { opacity: 1; }
+  96%  { opacity: 1; }
+  100% { top: -4px; opacity: 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
+  50%       { opacity: 1;   transform: translateX(-50%) scaleX(1.15); }
+}
+
+/* ─── Floating stat badge ─── */
+
+.scouter-stat-badge {
+  position: absolute;
+  bottom: 20px;
+  right: -8px;
+  font-size: 0.34rem !important;
+  color: rgba(0, 220, 120, 0.9);
+  background: rgba(26, 16, 8, 0.78);
+  border: 1px solid rgba(0, 220, 120, 0.4);
+  padding: 4px 7px;
+  white-space: nowrap;
+  animation: badge-fade 2.4s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes badge-fade {
+  0%, 100% { opacity: 0.4; }
+  40%, 60% { opacity: 1; }
+}
+
+/* ─── Power level readout ─── */
+
+.scouter-power {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.scouter-power__label {
+  font-size: 0.38rem !important;
+  color: var(--text-panel-dim);
+  letter-spacing: 2px;
+}
+
+.scouter-power__value {
+  font-family: var(--font-scouter);
+  font-size: 2.6rem;
+  color: #DCC83C;
+  line-height: 1;
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(220, 200, 60, 0.5);
+  animation: power-flicker 0.12s ease-in-out infinite alternate;
+}
+
+@keyframes power-flicker {
+  from { opacity: 0.92; }
+  to   { opacity: 1; }
+}
+
+.scouter-power__bar {
+  width: 180px;
+  height: 6px;
+  background: rgba(42, 28, 16, 0.6);
+  border: 1px solid var(--frame-color);
+  overflow: hidden;
+}
+
+.scouter-power__fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--orange) 0%, #DCC83C 60%, #fff 100%);
+  transform-origin: left;
+  animation: bar-overflow 1.8s ease-in-out infinite;
+}
+
+@keyframes bar-overflow {
+  0%   { transform: scaleX(0.3); }
+  60%  { transform: scaleX(1.05); }
+  100% { transform: scaleX(0.3); }
+}
+
+/* ─── Cycling message ─── */
+
+.scouter-message {
+  font-size: 0.42rem !important;
+  color: rgba(0, 220, 120, 0.85);
+  text-align: center;
+  min-height: 1.4em;
+  letter-spacing: 1.5px;
+  animation: msg-slide 1.8s ease-in-out infinite;
+}
+
+@keyframes msg-slide {
+  0%   { opacity: 0; transform: translateY(4px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  82%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}

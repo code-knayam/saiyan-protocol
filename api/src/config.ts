@@ -30,6 +30,7 @@ export const config = {
   ai: {
     provider: env('AI_PROVIDER', 'stub'),
     apiKey: env('AI_API_KEY', ''),
-    model: env('AI_MODEL', ''),
+    model: env('AI_MODEL', 'gpt-4o'),
+    stubDelayMs: parseInt(env('AI_STUB_DELAY_MS', '0'), 10),
   },
 } as const;

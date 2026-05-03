@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { config } from './config.js';
 import { closePool } from './db/pool.js';
+import { logger, requestLogger } from './utils/logger.js';
 import authRoutes from './routes/auth.js';
 import athleteRoutes from './routes/athlete.js';
 import workoutRoutes from './routes/workouts.js';
@@ -14,6 +15,7 @@ const app = express();
 // ═══════════════════════════════════
 app.use(cors());
 app.use(express.json());
+app.use(requestLogger);
 
 // ═══════════════════════════════════
 // Routes
@@ -31,17 +33,23 @@ app.use('/logs', logRoutes);
 // Start
 // ═══════════════════════════════════
 const server = app.listen(config.port, () => {
-  console.log(`⚡ Saiyan Protocol API running on port ${config.port}`);
-  console.log(`   Environment: ${config.nodeEnv}`);
-  console.log(`   AI Provider: ${config.ai.provider}`);
+  logger.info(`API started on port ${config.port}`, { env: config.nodeEnv, ai: config.ai.provider });
 });
 
-// Graceful shutdown
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.on(signal, async () => {
-    console.log(`\n🛑 ${signal} received — shutting down...`);
+    logger.info(`${signal} received — shutting down`);
     server.close();
     await closePool();
     process.exit(0);
   });
 }
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled rejection', { reason: String(reason) });
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught exception', { message: err.message, stack: err.stack });
+  process.exit(1);
+});

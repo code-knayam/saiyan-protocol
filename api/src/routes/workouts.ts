@@ -1,6 +1,7 @@
 import { Router, type Router as RouterType } from 'express';
 import { pool } from '../db/pool.js';
 import { authenticate } from '../middleware/auth.js';
+import { logger } from '../utils/logger.js';
 import { generateWeeklyWorkouts } from '../services/ai.js';
 
 const router: RouterType = Router();
@@ -11,20 +12,23 @@ router.use(authenticate);
 // Fetch the schedule for a given week/block
 // ═══════════════════════════════════
 router.get('/week', async (req, res) => {
-  try {
-    const week = parseInt(req.query.week as string, 10) || 1;
-    const block = parseInt(req.query.block as string, 10) || 1;
-    const athleteId = req.athlete!.athleteId;
+  const athleteId = req.athlete!.athleteId;
+  const week = parseInt(req.query.week as string, 10) || 1;
+  const block = parseInt(req.query.block as string, 10) || 1;
 
+  try {
+    logger.debug('GET /workouts/week', { athleteId, week, block });
     const schedule = await getFullSchedule(athleteId, week, block);
+
     if (!schedule) {
+      logger.warn('No schedule found', { athleteId, week, block });
       res.status(404).json({ error: 'No schedule found for this week/block' });
       return;
     }
 
     res.json(schedule);
-  } catch (err) {
-    console.error('Get week error:', err);
+  } catch (err: any) {
+    logger.error('GET /workouts/week failed', { athleteId, week, block, message: err.message });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -34,8 +38,10 @@ router.get('/week', async (req, res) => {
 // Generate a new week of workouts via AI
 // ═══════════════════════════════════
 router.post('/generate', async (req, res) => {
+  const athleteId = req.athlete!.athleteId;
+  const t0 = Date.now();
   try {
-    const athleteId = req.athlete!.athleteId;
+    logger.info('POST /workouts/generate started', { athleteId });
 
     // Get athlete profile
     const athleteResult = await pool.query(
@@ -70,6 +76,8 @@ router.post('/generate', async (req, res) => {
       [athleteId],
     );
 
+    logger.debug('Calling AI service', { athleteId, block: athlete.current_block, week: athlete.current_week });
+    const tAI = Date.now();
     // Call AI service
     const aiResult = await generateWeeklyWorkouts({
       athlete,
@@ -79,14 +87,17 @@ router.post('/generate', async (req, res) => {
       currentWeek: athlete.current_week,
     });
 
+    logger.info('AI generation complete', { athleteId, model: aiResult.model, ms: Date.now() - tAI });
+
     // Persist the generated plan summary and schedule
     await persistSchedule(athleteId, aiResult);
 
     // Return the full schedule
     const schedule = await getFullSchedule(athleteId, athlete.current_week, athlete.current_block);
+    logger.info('POST /workouts/generate done', { athleteId, ms: Date.now() - t0 });
     res.status(201).json(schedule);
-  } catch (err) {
-    console.error('Generate workouts error:', err);
+  } catch (err: any) {
+    logger.error('POST /workouts/generate failed', { athleteId, message: err.message, ms: Date.now() - t0 });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
