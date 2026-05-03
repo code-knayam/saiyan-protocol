@@ -1,0 +1,106 @@
+/* Workout Card — DBZ frame, all 4 corner ticks */
+
+.workout-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+  position: relative;
+  overflow: visible;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+}
+
+.workout-card::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.workout-card::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.workout-card:hover:not(:disabled) {
+  background: var(--panel-light);
+  transform: translateX(2px);
+}
+
+.workout-card:active:not(:disabled) { transform: translateX(1px); }
+.workout-card:disabled { cursor: default; }
+
+.workout-card--today {
+  border-width: 3px;
+  border-color: var(--frame-outer);
+  background: var(--panel-light);
+}
+
+.workout-card--done { opacity: 0.45; }
+.workout-card--done .workout-card__title,
+.workout-card--done .workout-card__subtitle {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-light);
+}
+
+.workout-card--rest { opacity: 0.4; }
+
+.workout-card__left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 36px;
+  position: relative;
+  z-index: 2;
+}
+
+.workout-card__day { font-size: 0.42rem !important; color: var(--text-panel-dim); }
+.workout-card__icon { font-size: 1.3rem; line-height: 1; }
+
+.workout-card__center { flex: 1; min-width: 0; position: relative; z-index: 2; }
+
+.workout-card__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-dark);
+  margin-bottom: 1px;
+}
+
+.workout-card__subtitle { font-size: 0.78rem; color: var(--text-panel-dim); }
+
+.workout-card__right { display: flex; align-items: center; position: relative; z-index: 2; }
+
+.workout-card__duration { font-size: 0.42rem !important; color: var(--text-panel-dim); white-space: nowrap; }
+
+.workout-card__check {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--green); color: white;
+  border-radius: 2px; font-size: 0.8rem; font-weight: 700;
+  border: 2px solid var(--frame-color);
+}
+
+.workout-card__today-badge {
+  position: absolute;
+  top: 4px; right: 8px;
+  font-size: 0.36rem !important;
+  color: var(--red);
+  letter-spacing: 1.5px;
+  z-index: 2;
+}

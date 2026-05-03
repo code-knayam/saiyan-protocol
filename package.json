@@ -1,0 +1,15 @@
+{
+  "name": "saiyan-protocol",
+  "private": true,
+  "workspaces": ["ui", "api"],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:ui": "bun run --filter ui dev",
+    "dev:api": "bun run --filter saiyan-protocol-api dev",
+    "build": "bun run --filter '*' build",
+    "build:ui": "bun run --filter ui build",
+    "build:api": "bun run --filter saiyan-protocol-api build",
+    "lint": "bun run --filter ui lint",
+    "deploy": "bun run --filter ui deploy"
+  }
+}

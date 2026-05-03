@@ -1,0 +1,764 @@
+.workout-detail {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .workout-detail { padding: 32px 40px; }
+}
+
+.workout-detail__header { padding-top: 12px; }
+
+.workout-detail__back {
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 6px 14px;
+  margin-bottom: 14px;
+  display: inline-block;
+}
+
+.workout-detail__back:hover { background: var(--panel-dark); }
+
+.workout-detail__hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.workout-detail__hero-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+}
+
+.workout-detail__hero h1 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.workout-detail__subtitle {
+  font-size: 0.82rem;
+  color: var(--text-mid);
+}
+
+.workout-detail__meta {
+  display: flex;
+  gap: 10px;
+}
+
+.workout-detail__meta .pixel-text {
+  font-size: 0.4rem !important;
+  color: var(--text-panel-dim);
+  background: var(--panel);
+  padding: 4px 8px;
+  border: 1px solid var(--frame-color);
+  border-radius: 2px;
+}
+
+/* Progress ring — DBZ frame */
+.workout-detail__progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+.workout-detail__progress::before {
+  content: '';
+  position: absolute; inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.workout-detail__progress::after {
+  content: '';
+  position: absolute; inset: -7px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.progress-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.progress-ring__svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring__bg {
+  fill: none;
+  stroke: var(--panel-dark);
+  stroke-width: 3;
+}
+
+.progress-ring__fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: butt;
+  transition: stroke-dasharray 0.4s ease;
+}
+
+.progress-ring__text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+
+/* Phases — DBZ frames */
+.workout-detail__phases {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-section {
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  overflow: visible;
+  position: relative;
+}
+
+.phase-section > .phase-section__inner-border {
+  position: absolute; inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+/* Corner ticks — can't use ::before/::after since phase uses them for content,
+   so we use box-shadow approach for phases */
+
+.phase-section--open { border-color: var(--frame-outer); }
+.phase-section--done { opacity: 0.5; }
+
+.phase-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+
+.phase-section__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.phase-section__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  border: 2px solid var(--frame-color);
+}
+
+.phase-section__name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-dark);
+  display: block;
+}
+
+.phase-section__duration {
+  font-size: 0.36rem !important;
+  color: var(--text-panel-dim);
+  margin-top: 2px;
+  display: block;
+}
+
+.phase-section__chevron {
+  color: var(--text-mid);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease;
+}
+
+.phase-section__chevron--open { transform: rotate(180deg); }
+
+.phase-section__body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Exercise items */
+.exercise-item {
+  background: var(--panel-dark);
+  border: 1px solid var(--frame-color);
+  border-radius: 2px;
+  padding: 10px;
+}
+
+.exercise-item--done { opacity: 0.4; }
+
+.exercise-item--done .exercise-item__name {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-light);
+}
+
+.exercise-item__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.exercise-item__check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  background: var(--panel-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: white;
+  transition: all 0.12s ease;
+  margin-top: 1px;
+}
+
+.exercise-item__check--checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.exercise-item__info { flex: 1; cursor: pointer; }
+
+.exercise-item__name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-dark);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.exercise-item__prescription {
+  display: flex;
+  gap: 10px;
+}
+
+.exercise-item__prescription .pixel-text {
+  font-size: 0.36rem !important;
+  color: var(--orange);
+}
+
+.exercise-item__details {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--frame-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exercise-item__desc { font-size: 0.78rem; color: var(--text-panel); }
+.exercise-item__cue { font-size: 0.78rem; color: var(--text-dark); }
+.exercise-item__cue .pixel-text { font-size: 0.36rem !important; color: var(--red); }
+.exercise-item__sub { font-size: 0.72rem; color: var(--text-mid); }
+.exercise-item__sub .pixel-text { font-size: 0.36rem !important; }
+
+/* Actions */
+.workout-detail__actions { padding-bottom: 20px; }
+
+.btn {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 12px 22px;
+  border: 3px solid var(--frame-color);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn--primary {
+  background: var(--red);
+  color: white;
+}
+
+.btn--primary:hover { background: var(--red-dark); }
+.btn--primary:active { transform: scale(0.98); }
+.btn--full { width: 100%; }
+
+/* Complete form — DBZ frame */
+.complete-form {
+  background: var(--panel);
+  border: 3px solid var(--frame-color);
+  border-radius: 2px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: visible;
+}
+
+.complete-form::before {
+  content: '';
+  position: absolute; inset: 3px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.complete-form::after {
+  content: '';
+  position: absolute; inset: -7px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.complete-form h3 {
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--text-dark);
+}
+
+.effort-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.effort-slider__input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--panel-dark);
+  border-radius: 2px;
+  outline: none;
+  border: 1px solid var(--frame-color);
+}
+
+.effort-slider__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--orange);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.effort-slider__labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.effort-slider__labels .pixel-text {
+  font-size: 0.36rem !important;
+  color: var(--text-panel-dim);
+}
+
+.effort-slider__value {
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  color: var(--orange) !important;
+}
+
+/* Complete screen */
+.workout-detail__complete-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 32px;
+}
+
+.complete-aura { display: none; }
+
+.complete-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.complete-icon {
+  font-size: 3.5rem;
+  animation: powerUp 1.5s ease-in-out infinite;
+}
+
+.complete-content .pixel-text-lg { color: var(--orange); }
+
+.complete-message {
+  font-size: 0.95rem;
+  color: var(--text-mid);
+  max-width: 260px;
+}
+
+.workout-detail__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+  gap: 14px;
+  color: var(--text-mid);
+}
+
+.workout-detail__empty button {
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  color: var(--text-dark);
+  padding: 8px 18px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+/* ═══ Power Breakdown on Completion ═══ */
+
+.power-breakdown {
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  width: 100%;
+  max-width: 320px;
+  overflow: visible;
+  position: relative;
+}
+
+.power-breakdown::before {
+  content: '';
+  position: absolute; inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.power-breakdown::after {
+  content: '';
+  position: absolute; inset: -6px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.power-breakdown__total {
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--frame-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.power-breakdown__label {
+  font-size: 0.4rem !important;
+  color: var(--text-panel-dim);
+}
+
+.power-breakdown__value {
+  font-family: var(--font-scouter);
+  font-size: 2.4rem;
+  color: var(--green);
+  line-height: 1;
+}
+
+.power-breakdown__details {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.power-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-panel);
+}
+
+.power-breakdown__row--bonus {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+/* Overtraining warning */
+.overtraining-warning {
+  background: var(--panel);
+  border: 2px solid var(--red);
+  border-radius: 2px;
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.overtraining-warning .pixel-text {
+  font-size: 0.4rem !important;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.overtraining-warning p {
+  font-size: 0.82rem;
+  color: var(--text-panel);
+}
+
+/* Roshi note on completion */
+.complete-roshi {
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+}
+
+.complete-roshi .pixel-text {
+  font-size: 0.38rem !important;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.complete-roshi p {
+  font-size: 0.82rem;
+  color: var(--text-panel);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ═══ Set Logging UI ═══ */
+
+.set-log-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--panel-light);
+  border: 1px solid var(--frame-color);
+  border-radius: 2px;
+  padding: 4px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+  min-width: 36px;
+}
+
+.set-log-toggle:hover { background: var(--panel); }
+.set-log-toggle--active { background: var(--panel); border-color: var(--orange); }
+.set-log-toggle--has-data { border-color: var(--green); }
+
+.set-log-toggle__icon { font-size: 0.9rem; line-height: 1; }
+.set-log-toggle__count { font-size: 0.32rem !important; color: var(--green); }
+
+.set-log-panel {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--frame-color);
+}
+
+.set-log-panel__header {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.set-log-panel__header .pixel-text {
+  font-size: 0.36rem !important;
+}
+
+.set-log-panel__pr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(208, 176, 32, 0.12);
+  border: 1px solid var(--yellow);
+  border-radius: 2px;
+  padding: 3px 8px;
+}
+
+.set-log-panel__pr-label {
+  font-size: 0.3rem !important;
+  color: var(--yellow);
+}
+
+.set-log-panel__pr-value {
+  font-family: var(--font-scouter);
+  font-size: 0.85rem;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.set-log-panel__table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.set-log-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.set-log-row--header {
+  border-bottom: 1px solid var(--panel-dark);
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+.set-log-row--header .pixel-text {
+  font-size: 0.32rem !important;
+  color: var(--text-panel-dim);
+}
+
+.set-log-row--completed {
+  opacity: 0.5;
+}
+
+.set-log-cell--set {
+  width: 28px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  flex-shrink: 0;
+}
+
+.set-log-cell--weight,
+.set-log-cell--reps,
+.set-log-cell--time {
+  flex: 1;
+  min-width: 0;
+}
+
+.set-log-cell--done {
+  width: 32px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.set-log-input {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--panel-light);
+  border: 1px solid var(--frame-color);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.set-log-input::-webkit-outer-spin-button,
+.set-log-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.set-log-input:focus {
+  border-color: var(--orange);
+  background: white;
+}
+
+.set-log-input::placeholder {
+  color: var(--text-light);
+}
+
+.set-log-check {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-light);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  color: white;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.set-log-check--checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+/* Already completed state */
+.already-done {
+  text-align: center;
+  padding: 16px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+}
+
+.already-done .pixel-text {
+  font-size: 0.44rem !important;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.already-done p {
+  font-size: 0.85rem;
+  color: var(--text-panel);
+}

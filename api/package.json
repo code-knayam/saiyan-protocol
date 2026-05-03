@@ -1,0 +1,32 @@
+{
+  "name": "saiyan-protocol-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "tsc",
+    "start": "bun src/index.ts",
+    "db:migrate": "bun src/db/migrate.ts",
+    "db:seed": "bun src/db/seed.ts"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "express": "4.21.2",
+    "firebase-admin": "13.4.0",
+    "jsonwebtoken": "9.0.2",
+    "pg": "8.13.3",
+    "uuid": "11.1.0",
+    "zod": "3.25.67"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "5.0.2",
+    "@types/express-serve-static-core": "5.0.6",
+    "@types/jsonwebtoken": "9.0.9",
+    "@types/node": "22.15.29",
+    "@types/pg": "8.11.13",
+    "@types/uuid": "10.0.0",
+    "typescript": "5.8.3"
+  }
+}

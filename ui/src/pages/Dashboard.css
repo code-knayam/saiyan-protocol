@@ -1,0 +1,244 @@
+.dashboard {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Desktop: 2-column layout */
+@media (min-width: 768px) {
+  .dashboard {
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "power stats"
+      "today upcoming"
+      "block roshi";
+    gap: 24px;
+  }
+
+  .dashboard__header { grid-area: header; }
+  .dashboard__power { grid-area: power; }
+  .dashboard__stats { grid-area: stats; }
+  .dashboard__today { grid-area: today; }
+  .dashboard__upcoming { grid-area: upcoming; }
+  .dashboard__block { grid-area: block; }
+  .dashboard__roshi { grid-area: roshi; }
+}
+
+@media (min-width: 1024px) {
+  .dashboard {
+    padding: 40px 60px;
+    gap: 28px;
+  }
+}
+
+.dashboard__header { padding-top: 20px; }
+
+@media (min-width: 768px) {
+  .dashboard__header { padding-top: 8px; }
+}
+
+.dashboard__greeting .pixel-text {
+  font-size: 0.48rem !important;
+  color: var(--red);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.dashboard__greeting h1 {
+  font-size: 1.4rem;
+  color: var(--text-dark);
+}
+
+@media (min-width: 768px) {
+  .dashboard__greeting h1 { font-size: 1.8rem; }
+}
+
+.dashboard__power { display: flex; justify-content: center; }
+
+@media (min-width: 768px) {
+  .dashboard__power { align-items: center; }
+}
+
+/* Stats */
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .dashboard__stats {
+    grid-template-columns: repeat(2, 1fr);
+    align-content: center;
+  }
+}
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+.stat-chip::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.stat-chip::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.stat-chip__value {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  position: relative;
+  z-index: 2;
+}
+
+.stat-chip__label {
+  font-size: 0.36rem !important;
+  color: var(--text-panel-dim);
+  position: relative;
+  z-index: 2;
+}
+
+/* Block banner */
+.block-banner {
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+.block-banner::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.block-banner::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.block-banner__label {
+  font-size: 0.46rem !important;
+  color: var(--red);
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.block-banner__intent {
+  font-size: 0.88rem;
+  color: var(--text-panel);
+  line-height: 1.5;
+  position: relative;
+  z-index: 2;
+}
+
+/* Section titles */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.section-title__icon { font-size: 1rem; }
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Roshi card */
+.roshi-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+}
+
+.roshi-card::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid var(--panel-dark);
+  pointer-events: none;
+}
+
+.roshi-card::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+  background: var(--corner-ticks);
+}
+
+.roshi-card__avatar {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--panel-dark);
+  border-radius: 2px;
+  border: 2px solid var(--frame-color);
+  position: relative;
+  z-index: 2;
+}
+
+.roshi-card__content { flex: 1; position: relative; z-index: 2; }
+
+.roshi-card__name {
+  font-size: 0.4rem !important;
+  color: var(--red);
+  margin-bottom: 5px;
+}
+
+.roshi-card__quote {
+  font-size: 0.82rem;
+  color: var(--text-panel);
+  font-style: italic;
+  line-height: 1.5;
+}

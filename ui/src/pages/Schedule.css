@@ -1,0 +1,118 @@
+.schedule-page {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .schedule-page { padding: 32px 40px; }
+}
+
+.schedule-page__header { padding-top: 20px; }
+
+@media (min-width: 768px) {
+  .schedule-page__header { padding-top: 8px; }
+}
+
+.schedule-page__header .pixel-text {
+  font-size: 0.46rem !important;
+  color: var(--red);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.schedule-page__header h1 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.schedule-page__intent {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+.schedule-page__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar {
+  height: 16px;
+  background: linear-gradient(160deg, rgba(30, 120, 20, 0.8), rgba(50, 160, 30, 0.7));
+  border: 2px solid #2A5A18;
+  border-radius: 2px;
+  overflow: hidden;
+  padding: 2px;
+  position: relative;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background:
+    linear-gradient(90deg, #3A9A20 0%, #50B830 40%, #3A9A20 60%, #50B830 100%);
+  border-radius: 1px;
+  transition: width 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  animation: bar-pulse 2.5s ease-in-out infinite;
+}
+
+/* Energy pulse traveling through the bar */
+.progress-bar__fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(220, 240, 60, 0.5) 30%,
+    rgba(255, 255, 200, 0.8) 50%,
+    rgba(220, 240, 60, 0.5) 70%,
+    transparent 100%
+  );
+  animation: bar-energy-pulse 2s ease-in-out infinite;
+}
+
+/* Glowing leading edge */
+.progress-bar__fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  background: rgba(255, 255, 200, 0.7);
+  border-radius: 1px;
+  animation: bar-edge-glow 1.2s ease-in-out infinite;
+}
+
+.progress-bar__label {
+  font-size: 0.4rem !important;
+  color: var(--text-mid);
+  text-align: right;
+}
+
+.schedule-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .schedule-page__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
