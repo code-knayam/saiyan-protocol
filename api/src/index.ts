@@ -32,7 +32,7 @@ app.use('/logs', logRoutes);
 // ═══════════════════════════════════
 // Start
 // ═══════════════════════════════════
-const server = app.listen(config.port, () => {
+const server = app.listen(config.port, '0.0.0.0', () => {
   logger.info(`API started on port ${config.port}`, { env: config.nodeEnv, ai: config.ai.provider });
 });
 
