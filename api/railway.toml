@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
+watchPatterns = ["api/**"]
 
 [deploy]
 startCommand = "bun src/index.ts"
