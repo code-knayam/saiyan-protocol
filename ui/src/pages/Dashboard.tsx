@@ -52,14 +52,14 @@ export default function Dashboard() {
           <div className="generate-card">
             <span className="generate-card__icon">🤖</span>
             <h2>No Training Schedule Yet</h2>
-            <p>Let Kakarot generate your first week of training based on your profile.</p>
+            <p>Let Kakarot build your training program based on your profile.</p>
             <button
               type="button"
               className="btn btn--primary btn--full"
               onClick={generateSchedule}
               disabled={scheduleLoading}
             >
-              {scheduleLoading ? 'Generating...' : '⚡ Generate Week ' + athlete.currentWeek}
+              {scheduleLoading ? 'Generating...' : '⚡ Generate Training Program'}
             </button>
           </div>
         </section>

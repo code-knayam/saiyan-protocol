@@ -5,6 +5,7 @@ import Schedule from './pages/Schedule';
 import WorkoutDetail from './pages/WorkoutDetail';
 import Log from './pages/Log';
 import Profile from './pages/Profile';
+import ProgramIntro from './pages/ProgramIntro';
 import Onboarding from './pages/Onboarding';
 import Login from './pages/Login';
 import { AppProvider, useAuth, useAthlete } from './store';
@@ -46,11 +47,21 @@ function AppRoutes() {
     );
   }
 
+  if (!athlete.planIntroSeen) {
+    return (
+      <Routes>
+        <Route path="/program-intro" element={<ProgramIntro />} />
+        <Route path="*" element={<Navigate to="/program-intro" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/program-intro" element={<ProgramIntro />} />
         <Route path="/workout/:id" element={<WorkoutDetail />} />
         <Route path="/log" element={<Log />} />
         <Route path="/profile" element={<Profile />} />

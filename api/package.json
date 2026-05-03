@@ -7,7 +7,10 @@
     "dev": "bun --watch src/index.ts",
     "build": "tsc",
     "start": "bun src/index.ts",
+    "db:create": "bun src/db/create.ts",
     "db:migrate": "bun src/db/migrate.ts",
+    "db:clear": "bun src/db/clear.ts",
+    "db:setup": "bun run db:create && bun run db:migrate",
     "db:seed": "bun src/db/seed.ts"
   },
   "dependencies": {

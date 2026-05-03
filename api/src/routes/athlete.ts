@@ -2,9 +2,11 @@ import { Router, type Router as RouterType } from 'express';
 import { z } from 'zod';
 import { pool } from '../db/pool.js';
 import { authenticate } from '../middleware/auth.js';
+import { generateAndPersistScheduleForAthlete } from './workouts.js';
 
 const ATHLETE_FIELDS = `id, email, name, picture_url, age, height, weight, power_level,
-  current_block, current_week, total_sessions_completed, streak_days, five_km_time, onboarded`;
+  current_block, current_week, total_sessions_completed, streak_days, five_km_time,
+  fitness_experience, training_goal, selected_goals, onboarded, plan_intro_seen`;
 
 const router: RouterType = Router();
 router.use(authenticate);
@@ -40,7 +42,11 @@ const updateSchema = z.object({
   height: z.string().optional(),
   weight: z.string().optional(),
   fiveKmTime: z.string().optional(),
+  fitnessExperience: z.string().max(2000).optional(),
+  trainingGoal: z.string().max(1000).optional(),
+  selectedGoals: z.array(z.string()).max(3).optional(),
   onboarded: z.boolean().optional(),
+  planIntroSeen: z.boolean().optional(),
 }).strict();
 
 router.patch('/', async (req, res) => {
@@ -53,7 +59,11 @@ router.patch('/', async (req, res) => {
       height: 'height',
       weight: 'weight',
       fiveKmTime: 'five_km_time',
+      fitnessExperience: 'fitness_experience',
+      trainingGoal: 'training_goal',
+      selectedGoals: 'selected_goals',
       onboarded: 'onboarded',
+      planIntroSeen: 'plan_intro_seen',
     };
 
     const setClauses: string[] = ['updated_at = NOW()'];
@@ -63,12 +73,23 @@ router.patch('/', async (req, res) => {
     for (const [key, col] of Object.entries(fieldMap)) {
       if (key in body) {
         setClauses.push(`${col} = $${paramIdx}`);
-        values.push((body as any)[key]);
+        const val = (body as any)[key];
+        values.push(key === 'selectedGoals' ? JSON.stringify(val) : val);
         paramIdx++;
       }
     }
 
     values.push(req.athlete!.athleteId);
+
+    // Check if we need to generate a schedule after saving (new onboarding completion)
+    let shouldGenerate = false;
+    if (body.onboarded === true) {
+      const scheduleCheck = await pool.query(
+        `SELECT COUNT(*) FROM week_schedules WHERE athlete_id = $1`,
+        [req.athlete!.athleteId],
+      );
+      shouldGenerate = parseInt(scheduleCheck.rows[0].count, 10) === 0;
+    }
 
     const result = await pool.query(
       `UPDATE athletes SET ${setClauses.join(', ')}
@@ -76,6 +97,10 @@ router.patch('/', async (req, res) => {
        RETURNING ${ATHLETE_FIELDS}`,
       values,
     );
+
+    if (shouldGenerate) {
+      await generateAndPersistScheduleForAthlete(req.athlete!.athleteId);
+    }
 
     res.json(result.rows[0]);
   } catch (err) {

@@ -20,12 +20,16 @@ function mapApiAthlete(a: api.ApiAthlete): AthleteProfile {
     height: a.height,
     weight: a.weight,
     powerLevel: a.power_level,
-    currentBlock: a.current_block as 1 | 2 | 3,
+    currentBlock: a.current_block,
     currentWeek: a.current_week,
     totalSessionsCompleted: a.total_sessions_completed,
     streakDays: a.streak_days,
     fiveKmTime: a.five_km_time,
+    fitnessExperience: a.fitness_experience,
+    trainingGoal: a.training_goal,
+    selectedGoals: a.selected_goals || [],
     onboarded: a.onboarded,
+    planIntroSeen: a.plan_intro_seen,
   };
 }
 
@@ -58,9 +62,17 @@ function mapApiSchedule(s: api.ApiWeekSchedule): WeekSchedule {
   return {
     id: s.id,
     week: s.week,
-    block: s.block as 1 | 2 | 3,
+    block: s.block,
     blockName: s.blockName || (s as any).block_name || '',
     weeklyIntent: s.weeklyIntent || (s as any).weekly_intent || '',
+    plan: s.plan ? {
+      id: s.plan.id,
+      name: s.plan.name,
+      totalWeeks: s.plan.totalWeeks,
+      summary: s.plan.summary,
+      coachNote: s.plan.coachNote,
+      blocks: s.plan.blocks || [],
+    } : null,
     workouts,
   };
 }
@@ -169,14 +181,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // ─── Auto-fetch schedule and logs when authenticated ───
+  // ─── Auto-fetch schedule and logs when user reaches home (past program-intro) ───
   useEffect(() => {
-    if (!isAuthenticated || !athlete.onboarded) return;
+    if (!isAuthenticated || !athlete.onboarded || !athlete.planIntroSeen) return;
     fetchScheduleInternal(athlete.currentWeek, athlete.currentBlock);
     fetchLogsInternal();
-  // Only run when auth state or onboarded status changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, athlete.onboarded, athlete.currentWeek, athlete.currentBlock]);
+  }, [isAuthenticated, athlete.onboarded, athlete.planIntroSeen, athlete.currentWeek, athlete.currentBlock]);
 
   // ─── Auth: Firebase Google Sign-In ───
   const signInWithGoogle = useCallback(async () => {

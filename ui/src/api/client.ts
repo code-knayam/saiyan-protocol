@@ -100,7 +100,11 @@ export interface ApiAthlete {
   total_sessions_completed: number;
   streak_days: number;
   five_km_time: string;
+  fitness_experience: string;
+  training_goal: string;
+  selected_goals: string[];
   onboarded: boolean;
+  plan_intro_seen: boolean;
 }
 
 export function firebaseSignIn(idToken: string) {
@@ -141,7 +145,25 @@ export interface ApiWeekSchedule {
   block: number;
   blockName: string;
   weeklyIntent: string;
+  plan: ApiTrainingPlan | null;
   workouts: Record<string, ApiWorkout>;
+}
+
+export interface ApiTrainingPlan {
+  id: string;
+  name: string;
+  totalWeeks: number;
+  summary: string;
+  coachNote: string;
+  blocks: ApiTrainingPlanBlock[];
+}
+
+export interface ApiTrainingPlanBlock {
+  blockNumber: number;
+  name: string;
+  startWeek: number;
+  endWeek: number;
+  focus: string;
 }
 
 export interface ApiWorkout {

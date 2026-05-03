@@ -20,8 +20,25 @@ export interface WeeklyGenerationOutput {
   block: number;
   blockName: string;
   weeklyIntent: string;
+  plan: TrainingPlanOutput;
   workouts: Record<string, any>;
   model: string;
+}
+
+export interface TrainingPlanOutput {
+  name: string;
+  totalWeeks: number;
+  summary: string;
+  coachNote: string;
+  blocks: TrainingPlanBlockOutput[];
+}
+
+export interface TrainingPlanBlockOutput {
+  blockNumber: number;
+  name: string;
+  startWeek: number;
+  endWeek: number;
+  focus: string;
 }
 
 export async function generateWeeklyWorkouts(
@@ -47,17 +64,44 @@ export async function generateWeeklyWorkouts(
 // Replace with real AI call when ready
 // ═══════════════════════════════════
 function generateStub(input: WeeklyGenerationInput): WeeklyGenerationOutput {
-  const blockNames: Record<number, string> = {
-    1: 'Saiyan Arc',
-    2: 'Namek Arc',
-    3: 'Cell Games Arc',
+  const plan: TrainingPlanOutput = {
+    name: 'Saiyan Protocol Foundation',
+    totalWeeks: 12,
+    summary: 'A hybrid program balancing combat conditioning, running performance, and calisthenics skill work.',
+    coachNote: 'Every warrior starts with a baseline. The plan can evolve once your logs start talking back.',
+    blocks: [
+      {
+        blockNumber: 1,
+        name: 'Saiyan Arc',
+        startWeek: 1,
+        endWeek: 4,
+        focus: 'Base building. Establish movement patterns, aerobic base, technique. Moderate intensity.',
+      },
+      {
+        blockNumber: 2,
+        name: 'Namek Arc',
+        startWeek: 5,
+        endWeek: 8,
+        focus: 'Intensity build. Heavier loads, faster intervals, harder progressions.',
+      },
+      {
+        blockNumber: 3,
+        name: 'Cell Games Arc',
+        startWeek: 9,
+        endWeek: 12,
+        focus: 'Peak phase. Maximum intensity, benchmark testing, peak performance.',
+      },
+    ],
   };
+
+  const currentBlock = plan.blocks.find((block) => block.blockNumber === input.currentBlock) || plan.blocks[0];
 
   return {
     week: input.currentWeek,
     block: input.currentBlock,
-    blockName: blockNames[input.currentBlock] || 'Saiyan Arc',
+    blockName: currentBlock.name,
     weeklyIntent: 'Establish movement patterns and build your aerobic base. Moderate intensity — no maximal efforts.',
+    plan,
     model: 'stub',
     workouts: {
       Mon: {

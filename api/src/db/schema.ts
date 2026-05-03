@@ -27,9 +27,45 @@ CREATE TABLE IF NOT EXISTS athletes (
   total_sessions_completed INTEGER NOT NULL DEFAULT 0,
   streak_days   INTEGER NOT NULL DEFAULT 0,
   five_km_time  TEXT NOT NULL DEFAULT '',
+  fitness_experience TEXT NOT NULL DEFAULT '',
+  training_goal TEXT NOT NULL DEFAULT '',
+  selected_goals JSONB NOT NULL DEFAULT '[]'::jsonb,
   onboarded     BOOLEAN NOT NULL DEFAULT FALSE,
+  plan_intro_seen BOOLEAN NOT NULL DEFAULT FALSE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE athletes ADD COLUMN IF NOT EXISTS fitness_experience TEXT NOT NULL DEFAULT '';
+ALTER TABLE athletes ADD COLUMN IF NOT EXISTS training_goal TEXT NOT NULL DEFAULT '';
+ALTER TABLE athletes ADD COLUMN IF NOT EXISTS selected_goals JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE athletes ADD COLUMN IF NOT EXISTS plan_intro_seen BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE athletes DROP COLUMN IF EXISTS twelve_week_goal;
+
+-- ═══════════════════════════════════
+-- AI-generated training plan summary
+-- ═══════════════════════════════════
+CREATE TABLE IF NOT EXISTS training_plans (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  athlete_id  UUID NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  total_weeks INTEGER NOT NULL CHECK (total_weeks > 0),
+  summary     TEXT NOT NULL DEFAULT '',
+  coach_note  TEXT NOT NULL DEFAULT '',
+  active      BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS training_plan_blocks (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  plan_id      UUID NOT NULL REFERENCES training_plans(id) ON DELETE CASCADE,
+  block_number INTEGER NOT NULL,
+  name         TEXT NOT NULL,
+  start_week   INTEGER NOT NULL,
+  end_week     INTEGER NOT NULL,
+  focus        TEXT NOT NULL DEFAULT '',
+  sort_order   INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(plan_id, block_number)
 );
 
 -- ═══════════════════════════════════
@@ -37,6 +73,7 @@ CREATE TABLE IF NOT EXISTS athletes (
 -- ═══════════════════════════════════
 CREATE TABLE IF NOT EXISTS week_schedules (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  plan_id       UUID REFERENCES training_plans(id) ON DELETE SET NULL,
   athlete_id    UUID NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
   week          INTEGER NOT NULL,
   block         INTEGER NOT NULL,
@@ -45,6 +82,8 @@ CREATE TABLE IF NOT EXISTS week_schedules (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(athlete_id, week, block)
 );
+
+ALTER TABLE week_schedules ADD COLUMN IF NOT EXISTS plan_id UUID REFERENCES training_plans(id) ON DELETE SET NULL;
 
 -- ═══════════════════════════════════
 -- Individual workouts within a week
@@ -146,6 +185,8 @@ CREATE TABLE IF NOT EXISTS ai_generation_logs (
 -- Indexes
 -- ═══════════════════════════════════
 CREATE INDEX IF NOT EXISTS idx_week_schedules_athlete ON week_schedules(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_training_plans_athlete ON training_plans(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_training_plan_blocks_plan ON training_plan_blocks(plan_id);
 CREATE INDEX IF NOT EXISTS idx_workouts_schedule ON workouts(schedule_id);
 CREATE INDEX IF NOT EXISTS idx_workout_phases_workout ON workout_phases(workout_id);
 CREATE INDEX IF NOT EXISTS idx_exercises_phase ON exercises(phase_id);

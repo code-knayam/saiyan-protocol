@@ -1,7 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import PowerLevel from '../components/PowerLevel';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useAthlete, useAuth } from '../store';
+import { GOAL_OPTIONS } from '../data/goalOptions';
 import './Profile.css';
+
+type DialogType = 'reset' | 'logout' | null;
 
 export default function Profile() {
   const { athlete, updateProfile, resetProgress } = useAthlete();
@@ -9,6 +14,8 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(athlete.name);
   const [saving, setSaving] = useState(false);
+  const [dialog, setDialog] = useState<DialogType>(null);
+  const selectedGoalDetails = GOAL_OPTIONS.filter((goal) => athlete.selectedGoals.includes(goal.id));
 
   async function handleSave() {
     setSaving(true);
@@ -22,20 +29,18 @@ export default function Profile() {
     }
   }
 
-  async function handleResetProgress() {
-    if (window.confirm('Reset training progress? Your power level, sessions, and streak will reset to starting values. Your profile stays intact.')) {
-      try {
-        await resetProgress();
-      } catch (err) {
-        console.error('Failed to reset progress:', err);
-      }
+  async function confirmReset() {
+    setDialog(null);
+    try {
+      await resetProgress();
+    } catch (err) {
+      console.error('Failed to reset progress:', err);
     }
   }
 
-  function handleLogout() {
-    if (window.confirm('Initiate self-destruct? You will be logged out.')) {
-      logout();
-    }
+  function confirmLogout() {
+    setDialog(null);
+    logout();
   }
 
   return (
@@ -139,40 +144,45 @@ export default function Profile() {
       <section className="profile-page__goals animate-in animate-in-delay-5">
         <h3>Mission Objectives</h3>
         <div className="goals-list">
-          <div className="goal-item">
-            <span className="goal-item__icon">🏖️</span>
-            <div>
-              <span className="goal-item__title">Lean Athletic Physique</span>
-              <span className="goal-item__desc">Functional, defined, not bulky</span>
+          {athlete.trainingGoal && (
+            <div className="goal-item">
+              <span className="goal-item__icon">🎯</span>
+              <div>
+                <span className="goal-item__title">Training Goal</span>
+                <span className="goal-item__desc">{athlete.trainingGoal}</span>
+              </div>
             </div>
-          </div>
-          <div className="goal-item">
-            <span className="goal-item__icon">🏃</span>
-            <div>
-              <span className="goal-item__title">Sub 27min 5km</span>
-              <span className="goal-item__desc">Improve VO2 max and running performance</span>
+          )}
+          {selectedGoalDetails.map((goal) => (
+            <div className="goal-item" key={goal.id}>
+              <span className="goal-item__icon">{goal.icon}</span>
+              <div>
+                <span className="goal-item__title">{goal.title}</span>
+                <span className="goal-item__desc">{goal.desc}</span>
+              </div>
             </div>
-          </div>
-          <div className="goal-item">
-            <span className="goal-item__icon">🤸</span>
-            <div>
-              <span className="goal-item__title">Calisthenics Skills</span>
-              <span className="goal-item__desc">Handstand, L-sit, front lever, planche</span>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* Actions */}
       <section className="profile-page__actions animate-in animate-in-delay-6">
-        <button type="button" className="action-btn action-btn--reset" onClick={handleResetProgress}>
+        <h3>System Controls</h3>
+        <Link to="/program-intro" className="action-btn action-btn--program">
+          <span className="action-btn__icon">📡</span>
+          <div className="action-btn__text">
+            <span className="action-btn__title">View Program Briefing</span>
+            <span className="action-btn__desc">Review your generated blocks, weeks, and plan intent.</span>
+          </div>
+        </Link>
+        <button type="button" className="action-btn action-btn--reset" onClick={() => setDialog('reset')}>
           <span className="action-btn__icon">🔄</span>
           <div className="action-btn__text">
             <span className="action-btn__title">Reset Training Progress</span>
             <span className="action-btn__desc">Power level, sessions, streak back to zero. Profile stays.</span>
           </div>
         </button>
-        <button type="button" className="action-btn action-btn--logout" onClick={handleLogout}>
+        <button type="button" className="action-btn action-btn--logout" onClick={() => setDialog('logout')}>
           <span className="action-btn__icon">💥</span>
           <div className="action-btn__text">
             <span className="action-btn__title">Logout</span>
@@ -180,6 +190,28 @@ export default function Profile() {
           </div>
         </button>
       </section>
+
+      {dialog === 'reset' && (
+        <ConfirmDialog
+          title="Reset Training Progress?"
+          message="Your power level, sessions completed, and streak will reset to starting values. Your profile and program stay intact."
+          confirmLabel="Reset"
+          danger
+          onConfirm={confirmReset}
+          onCancel={() => setDialog(null)}
+        />
+      )}
+
+      {dialog === 'logout' && (
+        <ConfirmDialog
+          title="Initiate Self-Destruct?"
+          message="You will be signed out of your account."
+          confirmLabel="Logout"
+          danger
+          onConfirm={confirmLogout}
+          onCancel={() => setDialog(null)}
+        />
+      )}
     </div>
   );
 }

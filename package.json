@@ -1,14 +1,22 @@
 {
   "name": "saiyan-protocol",
   "private": true,
-  "workspaces": ["ui", "api"],
+  "workspaces": [
+    "ui",
+    "api"
+  ],
   "scripts": {
-    "dev": "bun run --filter '*' dev",
+    "predev": "bunx kill-port 3001",
+    "dev": "bun run predev && bun run --filter '*' dev",
     "dev:ui": "bun run --filter ui dev",
     "dev:api": "bun run --filter saiyan-protocol-api dev",
     "build": "bun run --filter '*' build",
     "build:ui": "bun run --filter ui build",
     "build:api": "bun run --filter saiyan-protocol-api build",
+    "db:create": "bun run --filter saiyan-protocol-api db:create",
+    "db:migrate": "bun run --filter saiyan-protocol-api db:migrate",
+    "db:clear": "bun run --filter saiyan-protocol-api db:clear",
+    "db:setup": "bun run --filter saiyan-protocol-api db:setup",
     "lint": "bun run --filter ui lint",
     "deploy": "bun run --filter ui deploy"
   }

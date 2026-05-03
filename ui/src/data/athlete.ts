@@ -11,5 +11,9 @@ export const defaultAthlete: AthleteProfile = {
   totalSessionsCompleted: 0,
   streakDays: 0,
   fiveKmTime: '',
+  fitnessExperience: '',
+  trainingGoal: '',
+  selectedGoals: [],
   onboarded: false,
+  planIntroSeen: false,
 };

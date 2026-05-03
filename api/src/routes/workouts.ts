@@ -79,8 +79,8 @@ router.post('/generate', async (req, res) => {
       currentWeek: athlete.current_week,
     });
 
-    // Persist the generated schedule
-    const scheduleId = await persistSchedule(athleteId, aiResult);
+    // Persist the generated plan summary and schedule
+    await persistSchedule(athleteId, aiResult);
 
     // Return the full schedule
     const schedule = await getFullSchedule(athleteId, athlete.current_week, athlete.current_block);
@@ -186,12 +186,46 @@ async function getFullSchedule(athleteId: string, week: number, block: number) {
     [schedule.id],
   );
 
+  let plan = null;
+  if (schedule.plan_id) {
+    const planResult = await pool.query(
+      `SELECT * FROM training_plans WHERE id = $1 AND athlete_id = $2`,
+      [schedule.plan_id, athleteId],
+    );
+    const blocksResult = await pool.query(
+      `SELECT block_number, name, start_week, end_week, focus
+       FROM training_plan_blocks
+       WHERE plan_id = $1
+       ORDER BY sort_order, block_number`,
+      [schedule.plan_id],
+    );
+
+    if (planResult.rows.length > 0) {
+      const row = planResult.rows[0];
+      plan = {
+        id: row.id,
+        name: row.name,
+        totalWeeks: row.total_weeks,
+        summary: row.summary,
+        coachNote: row.coach_note,
+        blocks: blocksResult.rows.map((b) => ({
+          blockNumber: b.block_number,
+          name: b.name,
+          startWeek: b.start_week,
+          endWeek: b.end_week,
+          focus: b.focus,
+        })),
+      };
+    }
+  }
+
   return {
     id: schedule.id,
     week: schedule.week,
     block: schedule.block,
     blockName: schedule.block_name,
     weeklyIntent: schedule.weekly_intent,
+    plan,
     workouts: workoutsResult.rows.reduce((acc, w) => {
       acc[w.day] = {
         id: w.id,
@@ -212,15 +246,18 @@ async function persistSchedule(athleteId: string, aiResult: any): Promise<string
   try {
     await client.query('BEGIN');
 
+    const planId = await persistActivePlan(client, athleteId, aiResult.plan);
+
     // Insert week schedule
     const scheduleResult = await client.query(
-      `INSERT INTO week_schedules (athlete_id, week, block, block_name, weekly_intent)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO week_schedules (plan_id, athlete_id, week, block, block_name, weekly_intent)
+       VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (athlete_id, week, block) DO UPDATE
-         SET block_name = EXCLUDED.block_name,
-             weekly_intent = EXCLUDED.weekly_intent
+          SET plan_id = EXCLUDED.plan_id,
+              block_name = EXCLUDED.block_name,
+              weekly_intent = EXCLUDED.weekly_intent
        RETURNING id`,
-      [athleteId, aiResult.week, aiResult.block, aiResult.blockName, aiResult.weeklyIntent],
+      [planId, athleteId, aiResult.week, aiResult.block, aiResult.blockName, aiResult.weeklyIntent],
     );
     const scheduleId = scheduleResult.rows[0].id;
 
@@ -274,6 +311,95 @@ async function persistSchedule(athleteId: string, aiResult: any): Promise<string
   } finally {
     client.release();
   }
+}
+
+async function persistActivePlan(client: any, athleteId: string, plan: any): Promise<string> {
+  const existing = await client.query(
+    `SELECT id FROM training_plans WHERE athlete_id = $1 AND active = TRUE ORDER BY created_at DESC LIMIT 1`,
+    [athleteId],
+  );
+
+  const planData = plan || {
+    name: 'Saiyan Protocol',
+    totalWeeks: 1,
+    summary: '',
+    coachNote: '',
+    blocks: [],
+  };
+
+  let planId = existing.rows[0]?.id;
+
+  if (planId) {
+    await client.query(
+      `UPDATE training_plans
+       SET name = $1, total_weeks = $2, summary = $3, coach_note = $4
+       WHERE id = $5`,
+      [planData.name, planData.totalWeeks, planData.summary || '', planData.coachNote || '', planId],
+    );
+    await client.query(`DELETE FROM training_plan_blocks WHERE plan_id = $1`, [planId]);
+  } else {
+    const planResult = await client.query(
+      `INSERT INTO training_plans (athlete_id, name, total_weeks, summary, coach_note, active)
+       VALUES ($1, $2, $3, $4, $5, TRUE)
+       RETURNING id`,
+      [athleteId, planData.name, planData.totalWeeks, planData.summary || '', planData.coachNote || ''],
+    );
+    planId = planResult.rows[0].id;
+  }
+
+  for (let i = 0; i < (planData.blocks || []).length; i++) {
+    const block = planData.blocks[i];
+    await client.query(
+      `INSERT INTO training_plan_blocks (plan_id, block_number, name, start_week, end_week, focus, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [planId, block.blockNumber, block.name, block.startWeek, block.endWeek, block.focus || '', i],
+    );
+  }
+
+  return planId;
+}
+
+// ═══════════════════════════════════
+// Exported helper — called by athlete route on onboarding completion
+// ═══════════════════════════════════
+
+export async function generateAndPersistScheduleForAthlete(athleteId: string): Promise<void> {
+  const athleteResult = await pool.query(
+    `SELECT * FROM athletes WHERE id = $1`,
+    [athleteId],
+  );
+  if (athleteResult.rows.length === 0) throw new Error('Athlete not found');
+  const athlete = athleteResult.rows[0];
+
+  const logsResult = await pool.query(
+    `SELECT sl.*, w.type as workout_type
+     FROM session_logs sl
+     JOIN workouts w ON w.id = sl.workout_id
+     WHERE sl.athlete_id = $1
+     ORDER BY sl.date DESC LIMIT 10`,
+    [athleteId],
+  );
+
+  const exerciseHistoryResult = await pool.query(
+    `SELECT DISTINCT e.name
+     FROM exercises e
+     JOIN workout_phases wp ON wp.id = e.phase_id
+     JOIN workouts w ON w.id = wp.workout_id
+     JOIN week_schedules ws ON ws.id = w.schedule_id
+     WHERE ws.athlete_id = $1
+       AND ws.created_at > NOW() - INTERVAL '30 days'`,
+    [athleteId],
+  );
+
+  const aiResult = await generateWeeklyWorkouts({
+    athlete,
+    recentLogs: logsResult.rows,
+    exerciseHistory: exerciseHistoryResult.rows.map((r) => r.name),
+    currentBlock: athlete.current_block,
+    currentWeek: athlete.current_week,
+  });
+
+  await persistSchedule(athleteId, aiResult);
 }
 
 export default router;

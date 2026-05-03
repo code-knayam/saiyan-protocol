@@ -13,7 +13,7 @@ export type WorkoutType =
 
 export type DayOfWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
-export type Block = 1 | 2 | 3;
+export type Block = number;
 
 export interface Exercise {
   id: string;
@@ -79,7 +79,25 @@ export interface WeekSchedule {
   block: Block;
   blockName: string;
   weeklyIntent: string;
+  plan?: TrainingPlan | null;
   workouts: Record<DayOfWeek, Workout>;
+}
+
+export interface TrainingPlan {
+  id: string;
+  name: string;
+  totalWeeks: number;
+  summary: string;
+  coachNote: string;
+  blocks: TrainingPlanBlock[];
+}
+
+export interface TrainingPlanBlock {
+  blockNumber: number;
+  name: string;
+  startWeek: number;
+  endWeek: number;
+  focus: string;
 }
 
 export interface AthleteProfile {
@@ -96,5 +114,9 @@ export interface AthleteProfile {
   totalSessionsCompleted: number;
   streakDays: number;
   fiveKmTime: string;
+  fitnessExperience: string;
+  trainingGoal: string;
+  selectedGoals: string[];
   onboarded: boolean;
+  planIntroSeen: boolean;
 }

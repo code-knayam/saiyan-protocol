@@ -345,7 +345,8 @@
   color: var(--text-mid);
 }
 
-.form-field input {
+.form-field input,
+.form-field textarea {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 1rem;
@@ -358,11 +359,19 @@
   width: 100%;
 }
 
-.form-field input:focus {
+.form-field textarea {
+  resize: vertical;
+  line-height: 1.45;
+  min-height: 78px;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
   border-color: var(--orange);
 }
 
-.form-field input::placeholder {
+.form-field input::placeholder,
+.form-field textarea::placeholder {
   color: var(--text-light);
 }
 

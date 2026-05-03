@@ -36,9 +36,10 @@ router.post('/firebase', async (req, res) => {
              name = CASE WHEN athletes.name = '' THEN EXCLUDED.name ELSE athletes.name END,
              picture_url = EXCLUDED.picture_url,
              updated_at = NOW()
-       RETURNING id, google_id, email, name, picture_url, age, height, weight,
-                 power_level, current_block, current_week,
-                 total_sessions_completed, streak_days, five_km_time, onboarded`,
+         RETURNING id, google_id, email, name, picture_url, age, height, weight,
+                   power_level, current_block, current_week,
+                   total_sessions_completed, streak_days, five_km_time,
+                   fitness_experience, training_goal, selected_goals, onboarded, plan_intro_seen`,
       [uid, email, name || '', picture || ''],
     );
 

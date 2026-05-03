@@ -45,6 +45,104 @@
   gap: 6px;
 }
 
+.schedule-page__plan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: var(--panel);
+  border: 2px solid var(--frame-color);
+  box-shadow: 0 4px 0 rgba(42, 28, 16, 0.18);
+}
+
+.plan-brief__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-brief__header .pixel-text,
+.plan-brief__note .pixel-text {
+  color: var(--red);
+  font-size: 0.42rem !important;
+}
+
+.plan-brief__header p,
+.plan-brief__note p {
+  color: var(--text-mid);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.plan-blocks {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--frame-color);
+}
+
+.plan-block {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(237, 228, 208, 0.75);
+  border-bottom: 2px solid rgba(42, 28, 16, 0.65);
+}
+
+.plan-block:last-child { border-bottom: 0; }
+
+.plan-block--active {
+  background: rgba(220, 200, 60, 0.14);
+}
+
+.plan-block__marker {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  color: #fff;
+  border: 2px solid var(--frame-color);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.plan-block:not(.plan-block--active) .plan-block__marker {
+  background: transparent;
+  color: var(--text-dark);
+}
+
+.plan-block__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.plan-block__name {
+  color: var(--red) !important;
+  font-size: 0.42rem !important;
+}
+
+.plan-block__weeks {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.plan-block__focus {
+  color: var(--text-mid);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.plan-brief__note {
+  padding: 12px;
+  background: rgba(237, 228, 208, 0.72);
+  border: 2px solid var(--frame-color);
+}
+
 .progress-bar {
   height: 16px;
   background: linear-gradient(160deg, rgba(30, 120, 20, 0.8), rgba(50, 160, 30, 0.7));

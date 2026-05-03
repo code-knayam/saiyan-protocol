@@ -53,17 +53,52 @@ export default function Schedule() {
   const completedCount = DAY_ORDER.filter((d) =>
     schedule.workouts[d] && completedIds.has(schedule.workouts[d].id)
   ).length;
+  const plan = schedule.plan;
 
   return (
     <div className="schedule-page">
       <header className="schedule-page__header animate-in">
-        <span className="pixel-text" style={{ color: 'var(--orange)' }}>WEEK {schedule.week}</span>
-        <h1>{schedule.blockName}</h1>
+        <span className="pixel-text" style={{ color: 'var(--orange)' }}>
+          WEEK {schedule.week}{plan ? ` OF ${plan.totalWeeks}` : ''}
+        </span>
+        <h1>{plan?.name || schedule.blockName}</h1>
         <p className="schedule-page__intent">{schedule.weeklyIntent}</p>
       </header>
 
+      {plan && plan.blocks.length > 0 && (
+        <section className="schedule-page__plan animate-in animate-in-delay-1">
+          <div className="plan-brief__header">
+            <span className="pixel-text">PROGRAM STRUCTURE</span>
+            {plan.summary && <p>{plan.summary}</p>}
+          </div>
+          <div className="plan-blocks">
+            {plan.blocks.map((block) => (
+              <div
+                key={block.blockNumber}
+                className={`plan-block ${block.blockNumber === schedule.block ? 'plan-block--active' : ''}`}
+              >
+                <div className="plan-block__marker">{block.blockNumber}</div>
+                <div className="plan-block__info">
+                  <span className="plan-block__name pixel-text">{block.name}</span>
+                  <span className="plan-block__weeks">
+                    Weeks {block.startWeek}{block.startWeek === block.endWeek ? '' : `-${block.endWeek}`}
+                  </span>
+                  {block.focus && <span className="plan-block__focus">{block.focus}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+          {plan.coachNote && (
+            <div className="plan-brief__note">
+              <span className="pixel-text">MASTER ROSHI</span>
+              <p>"{plan.coachNote}"</p>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Progress bar */}
-      <div className="schedule-page__progress animate-in animate-in-delay-1">
+      <div className="schedule-page__progress animate-in animate-in-delay-2">
         <div className="progress-bar">
           <div
             className="progress-bar__fill"
