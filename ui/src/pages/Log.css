@@ -24,13 +24,13 @@
 .log-page__empty p { color: var(--text-mid); font-size: 0.95rem; }
 .log-page__empty-sub { color: var(--text-light) !important; font-size: 0.82rem !important; }
 
-.log-page__list { display: flex; flex-direction: column; gap: 10px; }
+.log-page__list { display: flex; flex-direction: column; gap: 20px; }
 
 @media (min-width: 768px) {
   .log-page__list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 20px;
   }
 }
 

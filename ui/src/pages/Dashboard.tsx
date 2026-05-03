@@ -154,16 +154,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Block Banner */}
-      <section className="dashboard__block animate-in animate-in-delay-5">
-        <div className="block-banner">
-          <div className="block-banner__label pixel-text">
-            Block {schedule.block} — {schedule.blockName}
-          </div>
-          <p className="block-banner__intent">{schedule.weeklyIntent}</p>
-        </div>
-      </section>
-
       {/* Roshi Quote */}
       <section className="dashboard__roshi animate-in animate-in-delay-6">
         <div className="roshi-card">

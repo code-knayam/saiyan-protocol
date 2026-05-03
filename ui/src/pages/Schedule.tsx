@@ -65,38 +65,6 @@ export default function Schedule() {
         <p className="schedule-page__intent">{schedule.weeklyIntent}</p>
       </header>
 
-      {plan && plan.blocks.length > 0 && (
-        <section className="schedule-page__plan animate-in animate-in-delay-1">
-          <div className="plan-brief__header">
-            <span className="pixel-text">PROGRAM STRUCTURE</span>
-            {plan.summary && <p>{plan.summary}</p>}
-          </div>
-          <div className="plan-blocks">
-            {plan.blocks.map((block) => (
-              <div
-                key={block.blockNumber}
-                className={`plan-block ${block.blockNumber === schedule.block ? 'plan-block--active' : ''}`}
-              >
-                <div className="plan-block__marker">{block.blockNumber}</div>
-                <div className="plan-block__info">
-                  <span className="plan-block__name pixel-text">{block.name}</span>
-                  <span className="plan-block__weeks">
-                    Weeks {block.startWeek}{block.startWeek === block.endWeek ? '' : `-${block.endWeek}`}
-                  </span>
-                  {block.focus && <span className="plan-block__focus">{block.focus}</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-          {plan.coachNote && (
-            <div className="plan-brief__note">
-              <span className="pixel-text">MASTER ROSHI</span>
-              <p>"{plan.coachNote}"</p>
-            </div>
-          )}
-        </section>
-      )}
-
       {/* Progress bar */}
       <div className="schedule-page__progress animate-in animate-in-delay-2">
         <div className="progress-bar">

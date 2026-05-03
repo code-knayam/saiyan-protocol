@@ -83,7 +83,7 @@
 .training-stat-row__value { font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: var(--text-dark); }
 
 /* Goals */
-.goals-list { display: flex; flex-direction: column; gap: 10px; }
+.goals-list { display: flex; flex-direction: column; gap: 20px; }
 
 .goal-item {
   display: flex; align-items: flex-start; gap: 10px;
@@ -112,7 +112,7 @@
 .profile-page__actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
   padding-bottom: 24px;
 }
 
